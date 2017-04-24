@@ -62,20 +62,20 @@ func (cRes *CallResponse) makeResponse(c callResponse) (err error) {
 	cRes.Call.From = c.Call.From
 	cRes.Call.ParentCallSID = c.Call.ParentCallSID
 	if c.Call.DateCreated != "" {
-		cRes.Call.DateCreated, err = time.Parse(timeFormat, c.Call.DateCreated)
+		cRes.Call.DateCreated, err = time.Parse(timeFormat, c.Call.DateCreated+" IST")
 	}
 	if c.Call.DateUpdated != "" {
-		cRes.Call.DateUpdated, err = time.Parse(timeFormat, c.Call.DateUpdated)
+		cRes.Call.DateUpdated, err = time.Parse(timeFormat, c.Call.DateUpdated+" IST")
 	}
 	cRes.Call.AccountSid = c.Call.AccountSid
 	cRes.Call.To = c.Call.To
 	cRes.Call.PhoneNumberSid = c.Call.PhoneNumberSid
 	cRes.Call.Status = c.Call.Status
 	if c.Call.StartTime != "" {
-		cRes.Call.StartTime, err = time.Parse(timeFormat, c.Call.StartTime)
+		cRes.Call.StartTime, err = time.Parse(timeFormat, c.Call.StartTime+" IST")
 	}
 	if c.Call.EndTime != "" {
-		cRes.Call.EndTime, err = time.Parse(timeFormat, c.Call.EndTime)
+		cRes.Call.EndTime, err = time.Parse(timeFormat, c.Call.EndTime+" IST")
 	}
 
 	var duration int

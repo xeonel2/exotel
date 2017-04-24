@@ -1,22 +1,25 @@
 package exotel
 
 import (
-	"bytes"
+	"io"
 	"net"
 	"net/http"
-	"net/url"
 	"time"
 )
 
 const (
-	baseURL = "http://twilix.exotel.in/v1"
-	// baseURL  = "http://requestb.in"
+	baseURL  = "http://twilix.exotel.in/v1"
 	rTimeout = 5 * time.Second
 	cTimeout = 1 * time.Second
 )
 
 const (
-	timeFormat = "2006-01-02 15:04:05"
+	timeFormat = "2006-01-02 15:04:05 MST"
+)
+
+const (
+	post = "POST"
+	get  = "GET"
 )
 
 // Exotel : Holds the http client
@@ -58,13 +61,13 @@ func (e *Exotel) setClient() {
 	e.SetConnectionTimeout(cTimeout)
 }
 
-func (e *Exotel) doRequest(url string, params url.Values) (*http.Response, error) {
-	exoRequest, err := http.NewRequest("POST", url, bytes.NewBufferString(params.Encode()))
+func (e *Exotel) doRequest(method string, url string, body io.Reader) (*http.Response, error) {
+	exoRequest, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
 	exoRequest.SetBasicAuth(e.auth.Username, e.auth.Password)
-	exoRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	// exoRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	response, err := e.Client.Do(exoRequest)
 	if err != nil {
 		return nil, err
