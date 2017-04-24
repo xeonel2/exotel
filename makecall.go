@@ -1,6 +1,7 @@
 package exotel
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,8 +9,8 @@ import (
 	"strconv"
 )
 
-// CallRequest : Defines request object for a call.
-type CallRequest struct {
+// MakeCallRequest : Defines request object for making a call.
+type MakeCallRequest struct {
 	From           string
 	To             string
 	CallerID       string
@@ -22,7 +23,7 @@ type CallRequest struct {
 }
 
 // validateCallRequest : Validates parameters for the make-call API.
-func (cReq *CallRequest) validateCallRequest() error {
+func (cReq *MakeCallRequest) validateCallRequest() error {
 	if cReq.From == "" || cReq.CallerID == "" {
 		return errors.New("Mandatory parameters missing")
 	}
@@ -32,16 +33,17 @@ func (cReq *CallRequest) validateCallRequest() error {
 	return nil
 }
 
-// DoCall : Actually makes the call using the http client.
-func (cReq *CallRequest) DoCall(e *Exotel) (cRes CallResponse, err error) {
+// Do : Actually makes the call using the http client.
+func (cReq *MakeCallRequest) Do(e *Exotel) (cRes CallResponse, err error) {
 	err = cReq.validateCallRequest()
 	if err != nil {
 		return
 	}
 
-	params := cReq.makeCallParams()
-	url := cReq.makeCallURL(e)
-	resp, _ := e.doRequest(url, params)
+	params := cReq.makeParams()
+	url := cReq.getURL(e)
+	body := bytes.NewBufferString(params.Encode())
+	resp, _ := e.doRequest(post, url, body)
 	defer resp.Body.Close()
 	var c callResponse
 	err = json.NewDecoder(resp.Body).Decode(&c)
@@ -53,7 +55,7 @@ func (cReq *CallRequest) DoCall(e *Exotel) (cRes CallResponse, err error) {
 }
 
 // makeCallParams : Generates url.Values for make-call API params.
-func (cReq *CallRequest) makeCallParams() (data url.Values) {
+func (cReq *MakeCallRequest) makeParams() (data url.Values) {
 	data = url.Values{
 		"From":           {cReq.From},
 		"CallerId":       {cReq.CallerID},
@@ -72,7 +74,7 @@ func (cReq *CallRequest) makeCallParams() (data url.Values) {
 }
 
 // makeCallURL : Makes a URL for the make-call API.
-func (CallRequest) makeCallURL(e *Exotel) (url string) {
+func (MakeCallRequest) getURL(e *Exotel) (url string) {
 	tenantID := e.auth.Username
 	url = fmt.Sprintf("%s/Accounts/%s/Calls/connect.json", baseURL, tenantID)
 	return
