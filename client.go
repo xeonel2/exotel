@@ -67,7 +67,7 @@ func (e *Exotel) doRequest(method string, url string, body io.Reader) (*http.Res
 		return nil, err
 	}
 	exoRequest.SetBasicAuth(e.auth.Username, e.auth.Password)
-	// exoRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	exoRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	response, err := e.Client.Do(exoRequest)
 	if err != nil {
 		return nil, err
