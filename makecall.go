@@ -3,10 +3,11 @@ package exotel
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/devpyp/exotel/exoerror"
 )
 
 // MakeCallRequest : Defines request object for making a call.
@@ -23,18 +24,18 @@ type MakeCallRequest struct {
 }
 
 // validateCallRequest : Validates parameters for the make-call API.
-func (cReq *MakeCallRequest) validateCallRequest() error {
+func (cReq *MakeCallRequest) validateCallRequest() *exoerror.Error {
 	if cReq.From == "" || cReq.CallerID == "" {
-		return errors.New("Mandatory parameters missing")
+		return exoerror.MissingParams
 	}
 	if cReq.FlowID == "" && cReq.To == "" {
-		return errors.New("Mandaotyr paramters missing")
+		return exoerror.MissingParams
 	}
 	return nil
 }
 
 // Do : Actually makes the call using the http client.
-func (cReq *MakeCallRequest) Do(e *Exotel) (cRes CallResponse, err error) {
+func (cReq *MakeCallRequest) Do(e *Exotel) (cRes CallResponse, err *exoerror.Error) {
 	err = cReq.validateCallRequest()
 	if err != nil {
 		return
@@ -43,14 +44,17 @@ func (cReq *MakeCallRequest) Do(e *Exotel) (cRes CallResponse, err error) {
 	params := cReq.makeParams()
 	url := cReq.getURL(e)
 	body := bytes.NewBufferString(params.Encode())
-	resp, _ := e.doRequest(post, url, body)
+	resp, err := e.doRequest(post, url, body)
 	defer resp.Body.Close()
 	var c callResponse
-	err = json.NewDecoder(resp.Body).Decode(&c)
-	if err != nil {
-		return
+	er := json.NewDecoder(resp.Body).Decode(&c)
+	if er != nil {
+		err = exoerror.DecodeError
 	}
-	err = cRes.makeResponse(c)
+	er = cRes.makeResponse(c)
+	if er != nil {
+		err = exoerror.ResponseError
+	}
 	return
 }
 
