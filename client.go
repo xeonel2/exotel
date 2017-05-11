@@ -5,6 +5,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/devpyp/exotel/exoerror"
 )
 
 const (
@@ -29,11 +31,11 @@ type Exotel struct {
 }
 
 // New : Get new Exotel type.
-func New(userName string, password string) (e *Exotel, err error) {
+func New(userName string, password string) (e *Exotel, err *exoerror.Error) {
 	e = new(Exotel)
-	err = e.auth.set(userName, password)
-	if err != nil {
-		return nil, err
+	er := e.auth.set(userName, password)
+	if er != nil {
+		err = exoerror.AuthError
 	}
 	e.setClient()
 	return
@@ -61,16 +63,18 @@ func (e *Exotel) setClient() {
 	e.SetConnectionTimeout(cTimeout)
 }
 
-func (e *Exotel) doRequest(method string, url string, body io.Reader) (*http.Response, error) {
-	exoRequest, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return nil, err
+func (e *Exotel) doRequest(method string, url string, body io.Reader) (res *http.Response, err *exoerror.Error) {
+	exoRequest, er := http.NewRequest(method, url, body)
+	if er != nil {
+		err = exoerror.ClientError
+		return
 	}
 	exoRequest.SetBasicAuth(e.auth.Username, e.auth.Password)
-	// exoRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	response, err := e.Client.Do(exoRequest)
-	if err != nil {
-		return nil, err
+	exoRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	res, er = e.Client.Do(exoRequest)
+	if er != nil || res.StatusCode != 200 {
+		err = exoerror.RequestFailed
+		return
 	}
-	return response, nil
+	return
 }

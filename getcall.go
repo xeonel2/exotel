@@ -3,6 +3,8 @@ package exotel
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/devpyp/exotel/exoerror"
 )
 
 // GetCallRequest : Defines request for getting details of a call.
@@ -11,17 +13,20 @@ type GetCallRequest struct {
 }
 
 // Do : Makes the HTTP request to get the details of a call.
-func (cReq *GetCallRequest) Do(e *Exotel) (cRes CallResponse, err error) {
+func (cReq *GetCallRequest) Do(e *Exotel) (cRes CallResponse, err *exoerror.Error) {
 	url := cReq.getURL(e)
-	resp, _ := e.doRequest(get, url, nil)
-	_ = resp
+	resp, err := e.doRequest(get, url, nil)
 	defer resp.Body.Close()
 	var c callResponse
-	err = json.NewDecoder(resp.Body).Decode(&c)
-	if err != nil {
+	er := json.NewDecoder(resp.Body).Decode(&c)
+	if er != nil {
+		err = exoerror.DecodeError
 		return
 	}
-	err = cRes.makeResponse(c)
+	er = cRes.makeResponse(c)
+	if er != nil {
+		err = exoerror.ResponseError
+	}
 	return
 }
 
