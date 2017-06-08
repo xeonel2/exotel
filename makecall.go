@@ -45,6 +45,10 @@ func (cReq *MakeCallRequest) Do(e *Exotel) (cRes CallResponse, err *exoerror.Err
 	url := cReq.getURL(e)
 	body := bytes.NewBufferString(params.Encode())
 	resp, err := e.doRequest(post, url, body)
+	if err != nil {
+		fmt.Println("Error making request" + err.Message)
+		return
+	}
 	defer resp.Body.Close()
 	var c callResponse
 	er := json.NewDecoder(resp.Body).Decode(&c)
