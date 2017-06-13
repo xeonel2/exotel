@@ -46,7 +46,6 @@ func (cReq *MakeCallRequest) Do(e *Exotel) (cRes CallResponse, err *exoerror.Err
 	body := bytes.NewBufferString(params.Encode())
 	resp, err := e.doRequest(post, url, body)
 	if err != nil {
-		fmt.Println("Error making request" + err.Message)
 		return
 	}
 	defer resp.Body.Close()
@@ -70,7 +69,7 @@ func (cReq *MakeCallRequest) makeParams() (data url.Values) {
 		"CallType":       {"trans"},
 		"TimeLimit":      {strconv.Itoa(cReq.TimeLimit)},
 		"TimeOut":        {strconv.Itoa(cReq.TimeOut)},
-		"StatusCallBack": {cReq.StatusCallBack},
+		"StatusCallback": {cReq.StatusCallBack},
 	}
 	if cReq.To != "" {
 		data["To"] = []string{cReq.To}
