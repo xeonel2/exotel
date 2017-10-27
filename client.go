@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devpyp/exotel/exoerror"
+	"github.com/xeonel2/exotel/exoerror"
 )
 
 const (

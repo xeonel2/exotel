@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/devpyp/exotel/exoerror"
+	"github.com/xeonel2/exotel/exoerror"
 )
 
 // MakeCallRequest : Defines request object for making a call.

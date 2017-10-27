@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/devpyp/exotel/exoerror"
+	"github.com/xeonel2/exotel/exoerror"
 )
 
 // GetCallRequest : Defines request for getting details of a call.
